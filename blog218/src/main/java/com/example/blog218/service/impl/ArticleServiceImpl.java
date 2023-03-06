@@ -2,6 +2,7 @@ package com.example.blog218.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.blog218.dao.dos.Archives;
 import com.example.blog218.dao.mapper.ArticleMapper;
 import com.example.blog218.dao.pojo.Article;
 import com.example.blog218.service.ArticleService;
@@ -43,6 +44,40 @@ public class ArticleServiceImpl implements ArticleService {
         // 要返回我们定义的vo数据，就是对应的前端数据，不应该只返回现在的数据需要进一步进行处理
         List<ArticleBodyVo> articleVoList =copyList(records,true,true);
         return Result.success(articleVoList);
+    }
+
+    @Override
+    public Result hotArticle(int limit) {
+        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByDesc(Article::getViewCounts);
+        queryWrapper.select(Article::getId,Article::getTitle);
+        //limit必须加空格
+        queryWrapper.last("limit "+limit);
+        //select id, title from article order by view_counts desc limit 5
+        List<Article> articles = articleMapper.selectList(queryWrapper);
+
+        return Result.success(copyList(articles,false,false));
+    }
+
+    //Result newArticles(int limit);
+
+    @Override
+    public Result newArticles(int limit) {
+        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByDesc(Article::getCreateDate);
+        queryWrapper.select(Article::getId,Article::getTitle);
+        queryWrapper.last("limit "+limit);
+        //select id,title from article order by create_date desc limit 5
+        List<Article> articles = articleMapper.selectList(queryWrapper);
+
+        return Result.success(copyList(articles,false,false));
+    }
+
+    @Override
+    public Result listArchives() {
+
+        List<Archives> archivesList = articleMapper.listArchives();
+        return Result.success(archivesList);
     }
 
     private List<ArticleBodyVo> copyList(List<Article> records, boolean isTag, boolean isAuthor) {

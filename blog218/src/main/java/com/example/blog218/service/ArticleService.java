@@ -12,4 +12,18 @@ public interface ArticleService {
      */
     Result listArticle(PageParams pageParams);
 
+    /**
+     * 最热文章
+     * @param limit
+     * @return
+     */
+    Result hotArticle(int limit);
+
+    Result newArticles(int limit);
+
+    /**
+     * 文章归档
+     * @return
+     */
+    Result listArchives();
 }
