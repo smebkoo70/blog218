@@ -15,4 +15,8 @@ public interface SysUserService {
      * @return
      */
     Result findUserByToken(String token);
+
+    SysUser findUserByAccount(String account);
+
+    void save(SysUser sysUser);
 }

@@ -12,8 +12,10 @@ import com.example.blog218.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class SysUserServiceImpl implements SysUserService {
 
     @Autowired
@@ -75,5 +77,23 @@ public class SysUserServiceImpl implements SysUserService {
         return Result.success(loginUserVo);
     }
 
+    /**
+     * 根据账户查找用户
+     * @param account
+     * @return
+     */
+    @Override
+    public SysUser findUserByAccount(String account) {
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysUser::getAccount,account);
+        queryWrapper.last("limit 1");
+        return sysUserMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public void save(SysUser sysUser) {
+        //注意 默认生成的id 是分布式id 采用了雪花算法(自动生成)
+        this.sysUserMapper.insert(sysUser);
+    }
 }
 

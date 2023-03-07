@@ -9,4 +9,8 @@ public class LoginParam {
 
     private String password;
 
+
+    private String nickname;
+
+
 }

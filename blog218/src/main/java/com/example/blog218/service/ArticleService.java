@@ -1,9 +1,13 @@
 package com.example.blog218.service;
 
+import com.example.blog218.vo.ArticleVo;
 import com.example.blog218.vo.Result;
 import com.example.blog218.vo.params.PageParams;
 
 public interface ArticleService {
+
+
+
 
     /**
      * 分页查询文章列表
@@ -26,4 +30,11 @@ public interface ArticleService {
      * @return
      */
     Result listArchives();
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    ArticleVo findArticleById(Long id);
 }

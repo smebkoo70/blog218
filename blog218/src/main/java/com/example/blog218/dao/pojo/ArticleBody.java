@@ -1,10 +1,9 @@
-package com.example.blog218.vo;
+package com.example.blog218.dao.pojo;
 
 import lombok.Data;
 
 @Data
-public class ArticleBodyVo {
-
+public class ArticleBody {
 
     private Long id;
     private String content;
