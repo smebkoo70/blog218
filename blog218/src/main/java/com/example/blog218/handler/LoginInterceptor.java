@@ -67,4 +67,5 @@ public class LoginInterceptor implements HandlerInterceptor {
         //如果不删除 threadlocal中用完的信息 会有内存泄漏的风险
         UserThreadLocal.remove();
     }
+
 }

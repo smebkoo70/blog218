@@ -9,6 +9,7 @@ import com.example.blog218.service.SysUserService;
 import com.example.blog218.vo.ErrorCode;
 import com.example.blog218.vo.LoginUserVo;
 import com.example.blog218.vo.Result;
+import com.example.blog218.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -94,6 +95,23 @@ public class SysUserServiceImpl implements SysUserService {
     public void save(SysUser sysUser) {
         //注意 默认生成的id 是分布式id 采用了雪花算法(自动生成)
         this.sysUserMapper.insert(sysUser);
+    }
+
+
+    @Override
+    public UserVo findUserVoById(Long id) {
+        SysUser sysUser = sysUserMapper.selectById(id);
+        if (sysUser == null){
+            sysUser = new SysUser();
+            sysUser.setId(1L);
+            sysUser.setAvatar("/static/img/logo.b3a48c0.png");
+            sysUser.setNickname("雨幕smeb");
+        }
+        UserVo userVo = new UserVo();
+        userVo.setAvatar(sysUser.getAvatar());
+        userVo.setNickname(sysUser.getNickname());
+        userVo.setId(sysUser.getId());
+        return userVo;
     }
 }
 

@@ -34,4 +34,9 @@ public class TagsController {
         //return Result.success(tagVoList);
     }
 
+
+    @GetMapping
+    public Result findAll(){
+        return tagsService.findAll();
+    }
 }

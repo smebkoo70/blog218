@@ -1,5 +1,6 @@
 package com.example.blog218.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.blog218.dao.mapper.TagMapper;
 import com.example.blog218.dao.pojo.Tag;
 import com.example.blog218.service.TagService;
@@ -53,5 +54,13 @@ public class TagServiceImpl implements TagService {
         //select * from tag where id in (1,2,3,4,5,6,7,8,9))
         List<Tag> tagList = tagMapper.findTagsByTagIds(tagIds);
         return Result.success(tagList);
+    }
+
+    @Override
+    public Result findAll() {
+        //没有任何查询条件可以直接写null，可以不new，也是查询所有的
+
+        List<Tag> tags = this.tagMapper.selectList(new LambdaQueryWrapper<>());
+        return Result.success(copyList(tags));
     }
 }

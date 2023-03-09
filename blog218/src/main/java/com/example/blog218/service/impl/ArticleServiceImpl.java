@@ -5,25 +5,27 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.blog218.dao.dos.Archives;
 import com.example.blog218.dao.mapper.ArticleBodyMapper;
 import com.example.blog218.dao.mapper.ArticleMapper;
+import com.example.blog218.dao.mapper.ArticleTagMapper;
 import com.example.blog218.dao.pojo.Article;
 import com.example.blog218.dao.pojo.ArticleBody;
-import com.example.blog218.service.ArticleService;
-import com.example.blog218.service.CategoryService;
-import com.example.blog218.service.SysUserService;
-import com.example.blog218.service.TagService;
+import com.example.blog218.dao.pojo.ArticleTag;
+import com.example.blog218.dao.pojo.SysUser;
+import com.example.blog218.service.*;
 
-import com.example.blog218.vo.ArticleBodyVo;
-import com.example.blog218.vo.ArticleVo;
-import com.example.blog218.vo.CategoryVo;
-import com.example.blog218.vo.Result;
+import com.example.blog218.utils.UserThreadLocal;
+import com.example.blog218.vo.*;
+import com.example.blog218.vo.params.ArticleParam;
 import com.example.blog218.vo.params.PageParams;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -34,6 +36,9 @@ public class ArticleServiceImpl implements ArticleService {
     private TagService tagService;
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private ArticleTagMapper articleTagMapper;
 
     @Override
     public Result listArticle(PageParams pageParams) {
@@ -86,9 +91,19 @@ public class ArticleServiceImpl implements ArticleService {
         return Result.success(archivesList);
     }
 
+    @Autowired
+    private ThreadService threadService;
+
     @Override
     public ArticleVo findArticleById(Long id) {
         Article article = articleMapper.selectById(id);
+
+        //查看完文章，要新增阅读数？有没有问题
+        //查看完文章之后，本应该直接返回数据，这时候做更新操作,更新时，加一个写的锁，就会阻塞其他读操作，性能会降低
+        //还有另一问题，更新耗时，增加了此次接口的消耗时间
+        // 如果 一旦更新出问题 那么不能影响查看文章的操作
+        //所以  使用 线程池 可以把更新操作放到线程池，和主线程就不相关了
+        threadService.updateViewCount(articleMapper,article);
 
         return copy(article,true,true,true,true);
     }
@@ -170,4 +185,59 @@ public class ArticleServiceImpl implements ArticleService {
         return articleBodyVo;
     }
 
+
+
+    @Override
+    @Transactional
+    public Result publish(ArticleParam articleParam) {
+        /**
+         * 1.发布文章，构建 article 对象
+         * 2.作者ID 当前的登录用户 前提，此接口要加入登陆拦截当中
+         * 3.标签  要将标签加入到 关联列表当中
+         * 4.body 内容存储
+         */
+        SysUser sysUser = UserThreadLocal.get();
+
+        Article article = new Article();
+        article.setAuthorId(sysUser.getId());
+        article.setCategoryId(articleParam.getCategory().getId());
+        article.setCreateDate(System.currentTimeMillis());
+        article.setCommentCounts(0);
+        article.setSummary(articleParam.getSummary());
+        article.setTitle(articleParam.getTitle());
+        article.setViewCounts(0);
+        article.setWeight(Article.Article_Common);
+        article.setBodyId(-1L);
+        //插入之后  会生成一个 article ID
+        this.articleMapper.insert(article);
+
+        //tags
+        List<TagVo> tags = articleParam.getTags();
+        if (tags != null) {
+            for (TagVo tag : tags) {
+                ArticleTag articleTag = new ArticleTag();
+                articleTag.setArticleId(article.getId());
+                articleTag.setTagId(tag.getId());
+                this.articleTagMapper.insert(articleTag);
+            }
+        }
+        ArticleBody articleBody = new ArticleBody();
+        articleBody.setContent(articleParam.getBody().getContent());
+        articleBody.setContentHtml(articleParam.getBody().getContentHtml());
+        articleBody.setArticleId(article.getId());
+        articleBodyMapper.insert(articleBody);
+
+        article.setBodyId(articleBody.getId());
+        articleMapper.updateById(article);
+
+        /*
+        Map<String,String> map = new HashMap<>();
+        map.put("id", article.getId().toString());
+        return Result.success(map);
+        */
+
+        ArticleVo articleVo = new ArticleVo();
+        articleVo.setId(article.getId());
+        return Result.success(articleVo);
+    }
 }

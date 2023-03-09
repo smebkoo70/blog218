@@ -2,6 +2,7 @@ package com.example.blog218.service;
 
 import com.example.blog218.dao.pojo.SysUser;
 import com.example.blog218.vo.Result;
+import com.example.blog218.vo.UserVo;
 
 public interface SysUserService {
 
@@ -19,4 +20,6 @@ public interface SysUserService {
     SysUser findUserByAccount(String account);
 
     void save(SysUser sysUser);
+
+    UserVo findUserVoById(Long id);
 }

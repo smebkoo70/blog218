@@ -2,6 +2,7 @@ package com.example.blog218.service;
 
 import com.example.blog218.vo.ArticleVo;
 import com.example.blog218.vo.Result;
+import com.example.blog218.vo.params.ArticleParam;
 import com.example.blog218.vo.params.PageParams;
 
 public interface ArticleService {
@@ -37,4 +38,6 @@ public interface ArticleService {
      * @return
      */
     ArticleVo findArticleById(Long id);
+
+    Result publish(ArticleParam articleParam);
 }
