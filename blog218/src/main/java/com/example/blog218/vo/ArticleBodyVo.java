@@ -6,7 +6,7 @@ import lombok.Data;
 public class ArticleBodyVo {
 
 
-    private Long id;
+    private String id;
     private String content;
     private String contentHtml;
     private Long articleId;

@@ -22,6 +22,7 @@ public class TagServiceImpl implements TagService {
 
     public TagVo copy(Tag tag){
         TagVo tagVo = new TagVo();
+        tagVo.setId(String.valueOf(tag.getId()));
         BeanUtils.copyProperties(tag,tagVo);
         return tagVo;
     }

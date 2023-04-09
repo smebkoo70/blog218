@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class QiniuUtils {
 
     //public static  final String url = "https://static.mszlu.com/";
-    public static  final String url = "http://rr9g943ky.bkt.clouddn.com/";
+    public static  final String url = "http://img.rainmovie.space/";
 
     @Value("${qiniu.accessKey}")
     private  String accessKey;
